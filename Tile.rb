@@ -36,7 +36,11 @@ class Tile
     neighbor_tiles = self.neighbors
 
     neighbor_tiles.each do |neighbor|
-      neighbor.reveal if self.reveal?(neighbor)
+       if neighbor.neighbor_bomb_count == 0
+         neighbor.reveal if self.reveal?(neighbor)
+       else
+         neighbor.display_value = neighbor.neighbor_bomb_count.to_s
+       end
     end
 
   end
@@ -45,9 +49,9 @@ class Tile
   def reveal?(tile)
     #bomb == true
     if tile.is_bomb == false && tile.display_value == '*' && tile.flagged == false
-      if tile.neighbor_bomb_count == 0
+
         return true
-      end
+
     end
     false
   end
