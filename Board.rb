@@ -59,17 +59,17 @@ class Board
   end
 
   def generate_display
-    # make strings
-    display = []
+    display = " 012345678\n"
 
-    @board.each do |row|
-      display_row = []
+    @board.each_with_index do |row, index|
+      display_row = index.to_s
       row.each do |tile|
         display_row << tile.display_value
       end
-      display << display_row
+      display << (display_row + "\n")
     end
-    display
+
+    puts display
 
   end
 
