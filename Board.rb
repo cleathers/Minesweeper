@@ -28,7 +28,7 @@ class Board
 
       y_coord = rand(9)
       x_coord = rand(9)
-      tile = @board[x_coord][y_coord]
+      tile = @board[y_coord][x_coord]
       if !(tile.is_bomb)
         tile.place_bomb
         seeded_bombs += 1
@@ -37,13 +37,29 @@ class Board
 
   end
 
+  DELTAS = [[-1,-1],[-1,0],[-1,1],[0,1],
+            [1,1],[1,0],[1,-1],[0,-1]]
   def find_neighbors(position)
-    neighbors = []
-    #fill this array with tile objects
 
+    neighbors = []
+    DELTAS.each do |delta|
+      neighbors << [(delta[0] + position[0]), (delta[1] + position[1])]
+    end
+
+    neighbors = neighbors.select do |neighbor|
+      (neighbor[0] >= 0 && neighbor[0] < @size) && (neighbor[1] >= 0 && neighbor[1] < @size)
+    end
+
+    neighbor_tiles = []
+    neighbors.each do |neighbor|
+      neighbor_tile = @board[neighbor[1]][neighbor[0]]
+      neighbor_tiles << neighbor_tile
+    end
+    neighbor_tiles
   end
 
   def generate_display
+    # make strings
     display = []
 
     @board.each do |row|
