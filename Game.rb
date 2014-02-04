@@ -1,6 +1,7 @@
 require './Board.rb'
 require 'debugger'
 require 'yaml'
+require 'json'
 
 class Game
 
@@ -12,10 +13,13 @@ class Game
       @board.make_board
       @board.seed_bombs
     end
+    @time = Time.now.to_f
     self.run
   end
 
   def run
+    puts "ENTER YOUR NAME!"
+    @name = gets.chomp
 
     until self.won?
       @board.generate_display
@@ -42,7 +46,7 @@ class Game
     end
 
     self.won
-    return ' '
+    self.check_leader_board
   end
 
   def get_user_input
@@ -74,11 +78,45 @@ class Game
   end
 
   def won
-    puts "You win"
+    @elapsed_time = Time.now.to_f - @time
+    puts "You win. It took you #{@elapsed_time} seconds"
   end
 
+  def check_leader_board
+    if !File.exist?('leader_board.json')
+      File.open('leader_board.json', 'w') { |f| f.puts '' }
+    end
+
+    # @leader_board = File.open('leader_board.json')
+    leader_hash = JSON.parse(File.read('leader_board.json'))
 
 
 
+    slow_time = leader_hash.values.max
+    if @elapsed_time < slow_time
+      leader_hash[@name] = @elapsed_time
+      leader_hash.delete_if {|key, value| value == slow_time }
+    end
+
+    display_leader_board(leader_hash)
+
+    leader_hash = leader_hash.to_json
+    File.open('leader_board.json', 'w') do |f|
+      f.puts leader_hash
+    end
+
+
+
+  end
+
+  def display_leader_board(leader_hash)
+    puts "HIGH SCORES:\n"
+
+    leaders_array = leader_hash.sort_by { |name, time| time }.reverse
+    leaders_array.each do |leader|
+      puts "Name: #{leader[0]} Time: #{leader[1]}\n"
+    end
+
+  end
 
 end
