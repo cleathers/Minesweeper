@@ -2,8 +2,8 @@ require './Board.rb'
 require 'debugger'
 
 class Tile
-  attr_reader :is_bomb, :flagged
-  attr_accessor :display_value
+  attr_reader :is_bomb
+  attr_accessor :display_value, :flagged, :revealed
 
   def initialize(position, board)
     @position = position
@@ -11,6 +11,7 @@ class Tile
     @display_value = '*'
     @board = board
     @flagged = false
+    @revealed = false
   end
 
   def to_s
@@ -29,17 +30,20 @@ class Tile
       self.display_value = 'B'
     elsif self.neighbor_bomb_count > 0
       self.display_value = neighbor_bomb_count.to_s
+      self.revealed = true
     else
       self.display_value = '_'
+      self.revealed = true
     end
 
     neighbor_tiles = self.neighbors
 
     neighbor_tiles.each do |neighbor|
        if neighbor.neighbor_bomb_count == 0
-         neighbor.reveal if self.reveal?(neighbor)
+        neighbor.reveal if self.reveal?(neighbor)
        else
-         neighbor.display_value = neighbor.neighbor_bomb_count.to_s
+        neighbor.display_value = neighbor.neighbor_bomb_count.to_s
+        neighbor.revealed = true
        end
     end
 
@@ -48,12 +52,22 @@ class Tile
 
   def reveal?(tile)
     #bomb == true
-    if tile.is_bomb == false && tile.display_value == '*' && tile.flagged == false
+    if tile.is_bomb == false && tile.revealed == false && tile.flagged == false
 
         return true
 
     end
     false
+  end
+
+  def flag_tile
+    if self.flagged == true
+      self.flagged = false
+      self.display_value = '*'
+    else
+      self.flagged = true
+      self.display_value = 'f'
+    end
   end
 
   def neighbors
