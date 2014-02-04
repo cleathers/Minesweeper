@@ -1,12 +1,17 @@
 require './Board.rb'
 require 'debugger'
+require 'yaml'
 
 class Game
 
-  def initialize
-    @board = Board.new(1)
-    @board.make_board
-    @board.seed_bombs
+  def initialize(file = nil)
+    if file != nil
+      @board = YAML::load(File.open(file))
+    else
+      @board = Board.new(1)
+      @board.make_board
+      @board.seed_bombs
+    end
     self.run
   end
 
@@ -24,6 +29,11 @@ class Game
         end
       elsif action == 'f'
         @board.board[coordinates[1]][coordinates[0]].flag_tile
+      elsif action == 's'
+        yaml_board = @board.to_yaml
+        File.open('yaml_board.yaml','w') do |f|
+          f.puts yaml_board
+        end
       else
         puts "Invalid entry"
         action, coordinates = self.get_user_input
@@ -36,8 +46,10 @@ class Game
   end
 
   def get_user_input
-    puts "R or F, x coordinate, y coordinate (e.g.: r, 0, 0)"
+    puts "r or f, x coordinate, y coordinate (e.g.: r, 0, 0)"
+    puts "enter s to save"
     input = gets.chomp
+    return input if input == 's'
     input = input.split(", ")
 
     action = input[0]
